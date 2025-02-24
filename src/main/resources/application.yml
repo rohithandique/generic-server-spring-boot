@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: "generic-server-spring-boot"
+  profiles:
+    active: "local"
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: "/swagger-ui/index.html"
