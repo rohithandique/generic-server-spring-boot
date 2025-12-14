@@ -5,4 +5,5 @@ exec java \
   -Dcom.sun.management.jmxremote.ssl=false \
   -Dcom.sun.management.jmxremote.authenticate=false \
   -Dcom.sun.management.jmxremote.rmi.port=9010 \
+  -Dspring.profiles.active=prod \
   -jar generic-server-spring-boot.jar
