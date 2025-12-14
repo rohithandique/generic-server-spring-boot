@@ -14,7 +14,7 @@ spring:
     user:
       name: "devuser"
       password: "{noop}devpassword"
-      roles: USER, ACTUATOR
+      roles: USER, ACTUATOR, ADMIN
 
 logging:
   level:

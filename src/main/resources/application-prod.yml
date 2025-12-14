@@ -10,10 +10,6 @@ hawtio:
   authenticationEnabled: true
 
 spring:
-  security:
-    user:
-      name: ""
-      password: ""
   devtools:
     add-properties: false
 

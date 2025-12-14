@@ -7,7 +7,8 @@ class ServerApplicationTest {
 
     @Test
     void test_main() {
-        Assertions.assertDoesNotThrow(() -> ServerApplication.main(new String[]{"--spring.main.web-application-type=none"}));
-    }
+        Assertions.assertDoesNotThrow(() -> ServerApplication.main(new String[]{
+                "--spring.profiles.active=local"
+        }));    }
 
 }
