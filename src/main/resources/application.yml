@@ -12,13 +12,4 @@ server:
 springdoc:
   show-actuator: true
   swagger-ui:
-    path: "/swagger-ui/index.html"
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-
-hawtio:
-  authenticationEnabled: false
+    path: "/swagger-ui"

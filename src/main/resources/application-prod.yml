@@ -1,0 +1,23 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,hawtio,jolokia,prometheus"
+    health:
+      show-details: when_authorized
+
+hawtio:
+  authenticationEnabled: true
+
+spring:
+  security:
+    user:
+      name: ""
+      password: ""
+  devtools:
+    add-properties: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
