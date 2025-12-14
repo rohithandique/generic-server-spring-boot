@@ -1,0 +1,37 @@
+name: Gemini Code Analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Dependencies
+      run: |
+        pip install google-generativeai
+
+    - name: Run Gemini Scanner
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: python scripts/security.py
+
+    - name: Upload Analysis Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: SECURITY_REPORT.md
