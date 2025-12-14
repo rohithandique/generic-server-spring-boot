@@ -3,7 +3,8 @@ plugins {
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco' // For code coverage
-	id "org.sonarqube" version "4.4.1.3373" // Use the latest stable version
+	id "org.sonarqube" version "7.2.1.6560"
+	id 'com.github.ben-manes.versions' version '0.53.0'
 }
 
 group = 'com.generic'
@@ -16,7 +17,7 @@ java {
 }
 
 // Configuration block for the SonarQube plugin
-sonarqube {
+sonar {
 	properties {
 		// Essential properties - replace with your actual keys
 		property "sonar.projectKey", "rohithandique_generic-server-spring-boot"
@@ -31,8 +32,6 @@ sonarqube {
 
 repositories {
 	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
-	maven { url 'https://repo.spring.io/snapshot' }
 }
 
 
@@ -68,7 +67,7 @@ jacocoTestReport {
 }
 
 // Ensure JaCoCo report runs before the SonarQube analysis task
-tasks.named('sonarqube').configure {
+tasks.named('sonar').configure {
 	dependsOn tasks.named('test'), tasks.named('jacocoTestReport')
 }
 
