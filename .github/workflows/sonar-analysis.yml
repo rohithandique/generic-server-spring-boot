@@ -36,4 +36,4 @@ jobs:
         run: |
           # The './gradlew clean build jacocoTestReport' command ensures all tests run 
           # and the JaCoCo coverage report is created *before* the SonarScanner runs.
-          ./gradlew clean build jacocoTestReport sonarqube
+          ./gradlew clean build jacocoTestReport sonar
