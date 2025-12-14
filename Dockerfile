@@ -2,5 +2,8 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 COPY build/libs/generic-server-spring-boot.jar /app/
+COPY start.sh /app/
+RUN chmod +x /app/start.sh
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "generic-server-spring-boot.jar"]
+EXPOSE 9010
+ENTRYPOINT ["/app/start.sh"]

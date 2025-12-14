@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.0-SNAPSHOT'
+	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -20,16 +20,27 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'io.hawt:hawtio-springboot:4.1.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('bootRun') {
+	jvmArgs = [
+		'-Dcom.sun.management.jmxremote',
+		'-Dcom.sun.management.jmxremote.port=9010',
+		'-Dcom.sun.management.jmxremote.ssl=false',
+		'-Dcom.sun.management.jmxremote.authenticate=false',
+		'-Dcom.sun.management.jmxremote.rmi.port=9010'
+	]
 }
 
 bootJar {

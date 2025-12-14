@@ -3,10 +3,24 @@ spring:
     name: "generic-server-spring-boot"
   profiles:
     active: "local"
+  jmx:
+    enabled: true
 
 server:
   port: 8080
 
 springdoc:
+  show-actuator: true
   swagger-ui:
     path: "/swagger-ui/index.html"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      path-mapping:
+        hawtio: console
+
+hawtio:
+  authenticationEnabled: false
