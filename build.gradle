@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco' // For code coverage
+	id "org.sonarqube" version "4.4.1.3373" // Use the latest stable version
 }
 
 group = 'com.generic'
@@ -13,11 +15,26 @@ java {
 	}
 }
 
+// Configuration block for the SonarQube plugin
+sonarqube {
+	properties {
+		// Essential properties - replace with your actual keys
+		property "sonar.projectKey", "rohithandique_generic-server-spring-boot"
+		property "sonar.organization", "rohithandique"
+		property "sonar.host.url", "https://sonarcloud.io"
+
+		// Properties for coverage reporting (required for New Code metrics)
+		property "sonar.java.coveragePlugin", "jacoco"
+		// This path tells SonarScanner where to find the coverage report
+		property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml').get().asFile.absolutePath	}
+}
+
 repositories {
 	mavenCentral()
 	maven { url 'https://repo.spring.io/milestone' }
 	maven { url 'https://repo.spring.io/snapshot' }
 }
+
 
 dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
@@ -41,6 +58,18 @@ tasks.named('bootRun') {
 		'-Dcom.sun.management.jmxremote.authenticate=false',
 		'-Dcom.sun.management.jmxremote.rmi.port=9010'
 	]
+}
+
+// Task to ensure JaCoCo report is generated as XML
+jacocoTestReport {
+	reports {
+		xml.required = true
+	}
+}
+
+// Ensure JaCoCo report runs before the SonarQube analysis task
+tasks.named('sonarqube').configure {
+	dependsOn tasks.named('test'), tasks.named('jacocoTestReport')
 }
 
 bootJar {
