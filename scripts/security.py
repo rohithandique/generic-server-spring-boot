@@ -1,29 +1,49 @@
 import os
+import argparse
 import google.generativeai as genai
 from pathlib import Path
 
-# Configure Gemini
-API_KEY = os.getenv("GEMINI_API_KEY")
-if not API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable not set")
+# --- CONFIGURATION ---
+# Set default values, but allow them to be overridden by command-line arguments.
+# This makes the script more flexible for different use cases.
 
-genai.configure(api_key=API_KEY)
+# The generative model to use for analysis. Using a powerful model like 1.5 Pro
+# is recommended for its large context window and strong reasoning capabilities.
+MODEL_NAME = "gemini-2.5-flash"
 
-# Configuration
-MODEL_NAME = "gemini-1.5-pro-latest" # Using 1.5 Pro for large context window
-ROOT_DIR = "."
-OUTPUT_FILE = "SECURITY_REPORT.md"
+# The root directory of the codebase to be analyzed.
+# We'll scan this directory recursively.
+ROOT_DIR = ".." # Changed to parent directory to scan the whole project
 
-# Extensions to scan
+# The directory where the security analysis report will be saved.
+# This helps keep the project's root directory clean.
+OUTPUT_DIR = "../temp/analysis"
+OUTPUT_FILE_NAME = "SECURITY_REPORT.md"
+
+# File extensions to include in the scan. This helps focus the analysis on
+# relevant source code and configuration files.
 INCLUDED_EXTENSIONS = {".java", ".gradle", ".xml", ".sh", ".properties"}
-EXCLUDED_DIRS = {".git", ".gradle", "build", "target", ".idea", "wrapper"}
+
+# Directories to exclude from the scan. This is crucial for avoiding noise
+# from dependencies, build artifacts, and version control metadata.
+EXCLUDED_DIRS = {".git", ".gradle", "build", "target", ".idea", "wrapper", "scripts"}
+
 
 def get_code_context(root_dir):
+    """
+    Recursively scans the specified root directory, aggregates the content of
+    files with allowed extensions, and returns it as a single string.
+
+    This function is the core of the data collection phase. It creates a "context"
+    of the entire codebase that can be sent to the generative model for analysis.
+    """
     code_content = ""
     file_count = 0
     
+    print(f"Starting code scan in: {Path(root_dir).resolve()}")
+    
     for root, dirs, files in os.walk(root_dir):
-        # Filter directories
+        # Dynamically filter out excluded directories to prune the search space.
         dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
         
         for file in files:
@@ -32,39 +52,57 @@ def get_code_context(root_dir):
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
-                        code_content += f"\n--- START FILE: {file_path} ---\n"
+                        # Add file content with clear separators for the model.
+                        code_content += f"\\n--- START FILE: {file_path} ---\\n"
                         code_content += content
-                        code_content += f"\n--- END FILE: {file_path} ---\n"
+                        code_content += f"\\n--- END FILE: {file_path} ---\\n"
                         file_count += 1
                 except Exception as e:
+                    # Log errors for files that can't be read, but continue the scan.
                     print(f"Skipping file {file_path}: {e}")
                     
     print(f"Scanned {file_count} files.")
     return code_content
 
+
 def analyze_code(code_context):
+    """
+    Sends the collected code context to the Gemini model for a security analysis.
+
+    The prompt is engineered to instruct the model to act as a security expert
+    and provide a structured, actionable report.
+    """
     model = genai.GenerativeModel(MODEL_NAME)
     
     prompt = f"""
     You are an expert Static Application Security Testing (SAST) tool and Senior Software Engineer.
-    Analyze the following codebase for:
-    1. Security Vulnerabilities (OWASP Top 10, Injection, XSS, etc.)
-    2. Code Smells & Anti-patterns
-    3. Performance Issues
-    4. Dependency checks (based on build.gradle)
-    
-    Format your response as a professional Markdown report with the following sections:
-    - **Executive Summary**: High-level overview of health.
-    - **Critical Vulnerabilities**: Immediate security threats.
-    - **Code Quality Issues**: Maintainability and logic suggestions.
-    - **Recommendations**: Specific code fixes.
-    
-    Here is the codebase:
+    Your task is to analyze the provided codebase for potential issues.
+
+    Please review the following aspects:
+    1.  **Security Vulnerabilities**: Identify critical security flaws such as those listed in the
+        OWASP Top 10 (e.g., Injection, Broken Authentication, XSS, Insecure Deserialization).
+    2.  **Code Smells & Anti-patterns**: Look for poor programming practices, design flaws,
+        or code structures that are hard to maintain.
+    3.  **Performance Issues**: Highlight any code that may lead to performance bottlenecks,
+        such as inefficient loops, memory leaks, or suboptimal queries.
+    4.  **Dependency Checks**: Based on the `build.gradle` file, check for any dependencies
+        with known vulnerabilities or that are outdated.
+
+    Structure your findings into a professional Markdown report with these sections:
+    -   **Executive Summary**: A high-level overview of the codebase's health and key findings.
+    -   **Critical Vulnerabilities**: A list of immediate security threats that must be addressed.
+    -   **Code Quality Issues**: Suggestions for improving maintainability, readability, and logic.
+    -   **Recommendations**: Specific, actionable advice for fixing the identified issues,
+        including code snippets where possible.
+
+    Here is the codebase to analyze:
     {code_context}
     """
     
-    # Generate content
-    # Set safety settings to block none to ensure we get the full critique even if code is "unsafe"
+    print("Sending code to Gemini for analysis. This may take a few moments...")
+    
+    # Configure safety settings to ensure the model returns a complete analysis,
+    # even if it encounters code that might be flagged as "unsafe."
     response = model.generate_content(
         prompt,
         generation_config={"temperature": 0.2}
@@ -72,16 +110,48 @@ def analyze_code(code_context):
     
     return response.text
 
+
 def main():
-    print("Gathering code...")
+    """
+    Main function to orchestrate the security analysis workflow.
+    1. Parses command-line arguments for the API key.
+    2. Configures the Gemini client.
+    3. Gathers code context.
+    4. Triggers the analysis.
+    5. Saves the report to a file.
+    """
+    # Set up argument parser for command-line execution.
+    parser = argparse.ArgumentParser(description="Perform a security analysis of a codebase using Gemini.")
+    parser.add_argument("--api-key", required=True, help="Your Gemini API key.")
+    args = parser.parse_args()
+
+    # Configure the Gemini client with the provided API key.
+    try:
+        genai.configure(api_key=args.api_key)
+    except Exception as e:
+        print(f"Error configuring Gemini: {e}")
+        return
+
+    print("Gathering code context...")
     code_context = get_code_context(ROOT_DIR)
     
-    print("Sending to Gemini for analysis...")
+    if not code_context:
+        print("No code found to analyze. Please check your configuration.")
+        return
+        
     report = analyze_code(code_context)
     
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    # Ensure the output directory exists.
+    output_path = Path(OUTPUT_DIR)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Write the report to the specified output file.
+    report_file = output_path / OUTPUT_FILE_NAME
+    with open(report_file, "w", encoding="utf-8") as f:
         f.write(report)
-    print(f"Report generated: {OUTPUT_FILE}")
+        
+    print(f"Security report successfully generated at: {report_file.resolve()}")
+
 
 if __name__ == "__main__":
     main()

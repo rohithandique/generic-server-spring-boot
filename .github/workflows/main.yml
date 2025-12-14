@@ -1,4 +1,4 @@
-name: gradle-container-build-publish
+name: Application Build & Publish
 
 on:
   push:
