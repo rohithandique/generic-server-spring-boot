@@ -1,6 +1,10 @@
 package com.generic.server.constants;
 
-public class Constants {
+public final class Constants {
+
+    private Constants() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated.");
+    }
 
     public static final String[] SWAGGER_PATHS = {
             "/swagger-ui/**",
