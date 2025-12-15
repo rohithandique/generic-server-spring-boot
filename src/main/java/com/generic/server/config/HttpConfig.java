@@ -20,8 +20,8 @@ public class HttpConfig {
     private static final String[] ACTUATOR_CSRF_EXCLUDED_PATHS = {
             "/actuator/hawtio/**",
             "/actuator/jolokia/**",
-            "/actuator/shutdown"
     };
+
 
     @Bean
     public SecurityFilterChain localLoginAndRedirectFilterChain(HttpSecurity http) throws Exception {
