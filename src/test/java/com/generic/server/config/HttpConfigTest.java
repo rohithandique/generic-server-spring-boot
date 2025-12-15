@@ -17,7 +17,7 @@ class HttpConfigTest {
         strategy.delegate = delegate;
         var request = mock(jakarta.servlet.http.HttpServletRequest.class);
         var response = mock(jakarta.servlet.http.HttpServletResponse.class);
-        var url = "http://localhost:8080/some/path?continue";
+        var url = "http://localhost:8080/some/path?continue&continue";
 
         // Act
         strategy.sendRedirect(request, response, url);

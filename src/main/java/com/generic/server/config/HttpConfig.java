@@ -2,17 +2,29 @@ package com.generic.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+
+import static com.generic.server.constants.Constants.*;
 
 @Configuration
 public class HttpConfig {
 
     @Bean
     public SecurityFilterChain localLoginAndRedirectFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable());
+
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                .ignoringRequestMatchers(ACTUATOR_CSRF_EXCLUDED_PATHS)
+        );
         http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(HttpMethod.GET, SWAGGER_PATHS).authenticated()
+                .requestMatchers("/actuator/**").hasAnyRole("ACTUATOR", "ADMIN")
                 .anyRequest().authenticated()
         );
         SavedRequestAwareAuthenticationSuccessHandler handler =
@@ -36,7 +48,7 @@ public class HttpConfig {
                 jakarta.servlet.http.HttpServletResponse response,
                 String url
         ) throws java.io.IOException {
-            String cleanedUrl = url.replace("?continue", "");
+            String cleanedUrl = url.replace("?continue", "").replace("&continue", "");
             delegate.sendRedirect(request, response, cleanedUrl);
         }
     }

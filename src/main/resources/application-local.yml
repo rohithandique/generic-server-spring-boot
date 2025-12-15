@@ -2,7 +2,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,hawtio,jolokia,prometheus"
+        include: "*"
     health:
       show-details: when_authorized
 
@@ -10,6 +10,10 @@ hawtio:
   authenticationEnabled: false
 
 spring:
+  servlet:
+    session:
+      cookie:
+        same-site: strict
   security:
     user:
       name: "devuser"
