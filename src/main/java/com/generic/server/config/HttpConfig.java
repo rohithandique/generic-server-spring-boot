@@ -36,7 +36,7 @@ public class HttpConfig {
                 jakarta.servlet.http.HttpServletResponse response,
                 String url
         ) throws java.io.IOException {
-            String cleanedUrl = url.replaceAll("\\?continue", "");
+            String cleanedUrl = url.replace("\\?continue", "");
             delegate.sendRedirect(request, response, cleanedUrl);
         }
     }
