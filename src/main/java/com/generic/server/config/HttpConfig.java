@@ -18,7 +18,7 @@ public class HttpConfig {
     public SecurityFilterChain localLoginAndRedirectFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 .ignoringRequestMatchers(ACTUATOR_CSRF_EXCLUDED_PATHS)
         );

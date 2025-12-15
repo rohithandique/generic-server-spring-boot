@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ConstantsTest {
+class ConstantsTest {
 
     @Test
     void testConstructorThrowsUnsupportedOperationException() throws NoSuchMethodException {
