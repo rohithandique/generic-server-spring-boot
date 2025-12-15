@@ -17,10 +17,10 @@ import java.io.IOException;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RestFilterTest {
+class HttpFilterTest {
 
     @InjectMocks
-    private RestFilter restFilter;
+    private HttpFilter httpFilter;
 
     @Mock
     private HttpServletRequest request;
@@ -38,7 +38,7 @@ class RestFilterTest {
         when(request.getRequestURI()).thenReturn(requestUri);
 
         // Act
-        restFilter.doFilterInternal(request, response, filterChain);
+        httpFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(response).setStatus(HttpStatus.PERMANENT_REDIRECT.value());
@@ -52,7 +52,7 @@ class RestFilterTest {
         when(request.getRequestURI()).thenReturn("/api/resource");
 
         // Act
-        restFilter.doFilterInternal(request, response, filterChain);
+        httpFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(filterChain).doFilter(request, response);
@@ -64,7 +64,7 @@ class RestFilterTest {
         when(request.getRequestURI()).thenReturn("/");
 
         // Act
-        restFilter.doFilterInternal(request, response, filterChain);
+        httpFilter.doFilterInternal(request, response, filterChain);
 
         // Assert
         verify(filterChain).doFilter(request, response);
