@@ -9,10 +9,19 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
-import static com.generic.server.constants.Constants.*;
-
 @Configuration
 public class HttpConfig {
+
+    private static final String[] SWAGGER_PATHS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
+
+    private static final String[] ACTUATOR_CSRF_EXCLUDED_PATHS = {
+            "/actuator/hawtio/**",
+            "/actuator/jolokia/**",
+            "/actuator/shutdown"
+    };
 
     @Bean
     public SecurityFilterChain localLoginAndRedirectFilterChain(HttpSecurity http) throws Exception {
