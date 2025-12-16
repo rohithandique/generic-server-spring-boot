@@ -5,10 +5,9 @@ import org.junit.jupiter.api.Test;
 
 class ServerApplicationTest {
 
-    @Test
-    void test_main() {
-        Assertions.assertDoesNotThrow(() -> ServerApplication.main(new String[]{
-                "--spring.profiles.active=local"
-        }));    }
-
+  @Test
+  void test_main() {
+    Assertions.assertDoesNotThrow(
+        () -> ServerApplication.main(new String[] {"--spring.profiles.active=local"}));
+  }
 }
