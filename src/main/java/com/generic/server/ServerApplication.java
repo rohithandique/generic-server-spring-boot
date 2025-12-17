@@ -10,6 +10,7 @@ public class ServerApplication {
 
   public static void main(String[] args) {
     log.info("Starting application");
+    log.info(System.getProperty("java.class.path"));
     SpringApplication.run(ServerApplication.class, args);
   }
 }

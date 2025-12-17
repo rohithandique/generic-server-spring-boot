@@ -6,7 +6,6 @@ spring:
   jmx:
     enabled: true
   datasource:
-    url: "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?user=postgres.hwnzjlovbrecaizjoqsn&password=${DB_PASSWORD}"
     driver-class-name: "org.postgresql.Driver"
     hikari:
       pool-name: "EnterprisePostgresPool"
