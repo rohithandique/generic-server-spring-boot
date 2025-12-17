@@ -20,7 +20,7 @@ spring:
       cookie:
         same-site: strict
   datasource:
-    url: "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.hwnzjlovbrecaizjoqsn&password=${DB_PASSWORD}&sslmode=verify-full&sslrootcert=classpath:supabase.crt"
+    url: "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.hwnzjlovbrecaizjoqsn&password=${DB_PASSWORD}&sslmode=verify-full&sslrootcert=/app/certs/supabase.crt"
 
 logging:
   level:
