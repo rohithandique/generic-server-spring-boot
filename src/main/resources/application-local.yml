@@ -20,7 +20,7 @@ spring:
       password: "{noop}devpassword"
       roles: USER, ACTUATOR, ADMIN
   datasource:
-    url: "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.hwnzjlovbrecaizjoqsn&password=${DB_PASSWORD}&sslmode=verify-full&sslrootcert=classpath:supabase.crt"
+    url: "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?user=postgres.hwnzjlovbrecaizjoqsn&password=${DB_PASSWORD}&sslmode=verify-full&sslrootcert=${user.dir}/src/main/resources/supabase.crt"
 
 logging:
   level:
