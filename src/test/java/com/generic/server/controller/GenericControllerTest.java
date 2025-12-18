@@ -1,7 +1,8 @@
 package com.generic.server.controller;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,9 +47,25 @@ class GenericControllerTest {
     when(genericService.getApplicationTables()).thenReturn(tables);
 
     mockMvc
-        .perform(get("/api/v1/metadata/tables").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/v1/tables").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].tableName").value("TABLE1"))
         .andExpect(jsonPath("$[1].tableName").value("TABLE2"));
+  }
+
+  @Test
+  @WithMockUser
+  void postPublishGenericMessage() throws Exception {
+    String orderId = "dummy-orderid-123";
+    when(genericService.processGenericMessage()).thenReturn(orderId);
+
+    mockMvc
+        .perform(
+            post("/api/v1/publish-generic-message")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Order message triggered!"))
+        .andExpect(jsonPath("$.id").value("dummy-orderid-123"));
   }
 }

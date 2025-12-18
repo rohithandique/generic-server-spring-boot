@@ -8,18 +8,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(
-    name = "Metadata Management",
-    description = "API for retrieving application and infrastructure metadata.")
+@Tag(name = "Generic Controller", description = "Generic API")
 @RestController
-@RequestMapping(value = "/api/v1/metadata", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/", produces = MediaType.APPLICATION_JSON_VALUE)
+@ConditionalOnProperty(name = "app.kafka.enabled", havingValue = "true", matchIfMissing = true)
 public class GenericController {
 
   private final GenericService genericService;
@@ -56,5 +58,33 @@ public class GenericController {
   public ResponseEntity<List<DatabaseTable>> getAppTables() {
     List<DatabaseTable> tables = genericService.getApplicationTables();
     return ResponseEntity.ok().body(tables);
+  }
+
+  @Operation(
+      summary = "Publish Generic Message",
+      description =
+          "Triggers a dummy order processing flow and returns the generated Order ID. This is typically used for integration testing or simulating message events.",
+      operationId = "publishGenericMessage")
+  @ApiResponse(
+      responseCode = "200",
+      description = "Message successfully triggered.",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema =
+                  @Schema(
+                      example = "{\"message\": \"Order message triggered!\", \"id\": \"12345\"}")))
+  @ApiResponse(
+      responseCode = "500",
+      description = "Internal Server Error. Failed to trigger the message flow.",
+      content =
+          @Content(
+              schema =
+                  @Schema(
+                      example = "{\"status\": 500, \"error\": \"Messaging service unavailable\"}")))
+  @PostMapping("/publish-generic-message")
+  public ResponseEntity<Map<String, String>> publishGenericMessage() {
+    String orderId = genericService.processGenericMessage();
+    return ResponseEntity.ok(Map.of("message", "Order message triggered!", "id", orderId));
   }
 }

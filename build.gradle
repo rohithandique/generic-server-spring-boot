@@ -5,11 +5,20 @@ plugins {
 	id 'jacoco'
 	id "org.sonarqube" version "7.2.1.6560"
 	id 'com.github.ben-manes.versions' version '0.53.0'
-	id 'com.diffplug.spotless' version '6.25.0'
+	id 'com.diffplug.spotless' version '8.1.0'
+	id "com.github.davidmc24.gradle.plugin.avro" version "1.9.1"
 }
 
 group = 'com.generic'
 version = '0.0.1-SNAPSHOT'
+
+sourceSets {
+	main {
+		java {
+			srcDirs += 'build/generated-main-avro-java'
+		}
+	}
+}
 
 java {
 	toolchain {
@@ -17,79 +26,65 @@ java {
 	}
 }
 
-// Configuration block for the SonarQube plugin
 sonar {
 	properties {
-		// Essential properties - replace with your actual keys
 		property "sonar.projectKey", "rohithandique_generic-server-spring-boot"
 		property "sonar.organization", "rohithandique"
 		property "sonar.host.url", "https://sonarcloud.io"
-
-		// Properties for coverage reporting (required for New Code metrics)
 		property "sonar.java.coveragePlugin", "jacoco"
-		// This path tells SonarScanner where to find the coverage report
 		property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml').get().asFile.absolutePath
 	}
 }
 
 repositories {
 	mavenCentral()
+	maven {
+		url "https://packages.confluent.io/maven/"
+	}
 }
 
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	developmentOnly
 }
-
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'io.hawt:hawtio-springboot:4.1.0'
 	implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.apache.avro:avro:1.12.1'
+	implementation 'io.confluent:kafka-avro-serializer:8.1.1'
 	runtimeOnly 'org.postgresql:postgresql'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+avro {
+	createSetters = true
+	fieldVisibility = "PRIVATE"
+	outputCharacterEncoding = "UTF-8"
+}
+
 spotless {
-	// Defines the formatting rules for Java source files
 	java {
-		// Specify the file paths to check
 		target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
-
-		// Use Google Java Format (GJS) as the formatter
-		// Use the default version included with Spotless, or specify one (e.g., '1.17.0')
 		googleJavaFormat()
-
-		// Optionally, ensure that license headers are present at the top of every file
-		// For example, enforcing a standard Apache 2.0 header:
-		// licenseHeaderFile rootProject.file('LICENSE_HEADER.txt')
-
-		// This makes sure your imports are correctly ordered (recommended)
-		// Spring Boot projects often benefit from the "removeUnusedImports" step.
 		removeUnusedImports()
 	}
-
-	// Optional: Add configuration for other file types common in Spring Boot projects
 	format 'misc', {
-		// For files like .md, .gitignore, .properties, etc.
 		target '**/*.md', '**/.gitignore', '**/*.properties'
-
-		// Ensures files end with a newline character
 		trimTrailingWhitespace()
-		indentWithSpaces()
 		endWithNewline()
 	}
 }
@@ -99,7 +94,7 @@ tasks.named('test') {
 }
 
 tasks.named('bootRun') {
-	classpath = sourceSets.main.runtimeClasspath + configurations.developmentOnly
+	classpath = sourceSets.main.runtimeClasspath
 	jvmArgs = [
 		'-Dcom.sun.management.jmxremote',
 		'-Dcom.sun.management.jmxremote.port=9010',
@@ -110,14 +105,12 @@ tasks.named('bootRun') {
 	]
 }
 
-// Task to ensure JaCoCo report is generated as XML
 jacocoTestReport {
 	reports {
 		xml.required = true
 	}
 }
 
-// Ensure JaCoCo report runs before the SonarQube analysis task
 tasks.named('sonar').configure {
 	dependsOn tasks.named('test'), tasks.named('jacocoTestReport')
 }

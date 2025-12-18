@@ -8,6 +8,12 @@ class ServerApplicationTest {
   @Test
   void test_main() {
     Assertions.assertDoesNotThrow(
-        () -> ServerApplication.main(new String[] {"--spring.profiles.active=local"}));
+        () ->
+            ServerApplication.main(
+                new String[] {
+                  "--spring.profiles.active=local",
+                  "--app.kafka.enabled=false",
+                  "--spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+                }));
   }
 }

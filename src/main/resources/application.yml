@@ -15,6 +15,31 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: "SELECT 1"
+  kafka:
+    bootstrap-servers: "https://generic-kafka-generic-project.c.aivencloud.com:21489"
+    generic-topic: "generic-topic"
+    security:
+      protocol: SSL
+    producer:
+      key-serializer: "org.apache.kafka.common.serialization.StringSerializer"
+      value-serializer: "io.confluent.kafka.serializers.KafkaAvroSerializer"
+      properties:
+        schema.registry.url: "https://generic-kafka-generic-project.c.aivencloud.com:21492"
+        basic.auth.credentials.source: "USER_INFO"
+        basic.auth.user.info: "${KAFKA_USER}:${KAFKA_PASSWORD}"
+    consumer:
+      group-id: "generic-server-group"
+      auto-offset-reset: "earliest"
+      key-deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+      value-deserializer: "io.confluent.kafka.serializers.KafkaAvroDeserializer"
+      properties:
+        schema.registry.url: "https://generic-kafka-generic-project.c.aivencloud.com:21492"
+        basic.auth.credentials.source: "USER_INFO"
+        basic.auth.user.info: "${KAFKA_USER}:${KAFKA_PASSWORD}"
+        specific.avro.reader: true
+    properties:
+      schema.registry.url: "https://generic-kafka-generic-project.c.aivencloud.com:21492"
+      specific.avro.reader: true
 
 server:
   port: 8080
@@ -23,3 +48,5 @@ springdoc:
   show-actuator: true
   swagger-ui:
     path: "/swagger-ui"
+    csrf:
+      enabled: true

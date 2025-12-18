@@ -1,0 +1,72 @@
+{
+  "fields": [
+    {
+      "name": "orderId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "logicalType": "timestamp-millis",
+        "type": "long"
+      }
+    },
+    {
+      "name": "customer",
+      "type": {
+        "fields": [
+          {
+            "name": "customerId",
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "type": "string"
+          }
+        ],
+        "name": "CustomerInfo",
+        "type": "record"
+      }
+    },
+    {
+      "name": "items",
+      "type": {
+        "items": "string",
+        "type": "array"
+      }
+    },
+    {
+      "name": "totalAmount",
+      "type": {
+        "logicalType": "decimal",
+        "precision": 10,
+        "scale": 2,
+        "type": "bytes"
+      }
+    },
+    {
+      "name": "status",
+      "type": {
+        "name": "OrderStatus",
+        "symbols": [
+          "PENDING",
+          "COMPLETED",
+          "CANCELLED",
+          "REFUNDED"
+        ],
+        "type": "enum"
+      }
+    },
+    {
+      "default": null,
+      "name": "promotionCode",
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  ],
+  "name": "OrderEvent",
+  "namespace": "com.enterprise.retail.v1",
+  "type": "record"
+}
