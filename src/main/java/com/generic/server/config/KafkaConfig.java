@@ -62,7 +62,6 @@ public class KafkaConfig {
     configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
     configProps.put("schema.registry.url", schemaRegistryUrl);
-    // Important for Avro: tells the deserializer to use the generated SpecificRecord classes
     configProps.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true);
     return new DefaultKafkaConsumerFactory<>(configProps);
   }
@@ -72,6 +71,17 @@ public class KafkaConfig {
     ConcurrentKafkaListenerContainerFactory<String, Object> factory =
         new ConcurrentKafkaListenerContainerFactory<>();
     factory.setConsumerFactory(consumerFactory());
+    return factory;
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, Object> genericRecordFactory() {
+    ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+        new ConcurrentKafkaListenerContainerFactory<>();
+    factory.setConsumerFactory(consumerFactory());
+    factory
+        .getConsumerFactory()
+        .updateConfigs(Map.of(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, false));
     return factory;
   }
 

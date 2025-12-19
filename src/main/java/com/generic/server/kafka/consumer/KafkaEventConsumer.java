@@ -1,11 +1,11 @@
 package com.generic.server.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.avro.generic.IndexedRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 @Slf4j
-public abstract class KafkaEventConsumer<T extends SpecificRecordBase> {
+public abstract class KafkaEventConsumer<T extends IndexedRecord> {
 
   /** Template method to be implemented by specific consumers */
   public abstract void handleMessage(T message);

@@ -66,6 +66,12 @@ class KafkaConfigTest {
   }
 
   @Test
+  void genericRecordFactory() {
+    when(kafkaProperties.buildConsumerProperties()).thenReturn(new HashMap<>());
+    assertNotNull(kafkaConfig.genericRecordFactory());
+  }
+
+  @Test
   void verifyKafkaConnection_success() throws Exception {
     Map<String, Object> config = new HashMap<>();
     when(kafkaAdmin.getConfigurationProperties()).thenReturn(config);
